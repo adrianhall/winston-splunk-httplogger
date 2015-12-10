@@ -13,10 +13,10 @@ A [Winston] transport for logging to a [Splunk] [HTTP Event Collector].
 
     var options = {
         level: 'info',
-        splunk: {
-            token: 'your-token-here',
-            url: 'https://your-splunk-instance:8088'
-        }
+
+        // This is your Splunk Instance Infromation
+        url: 'https://splunk.local:8088',
+        token: 'MY-TOKEN'
     };
 
     winston.add(splunkLogger, options);
