@@ -1,19 +1,23 @@
-var winston = require('winston');
-var SplunkStreamEvent = require('..');
+/* eslint-env node */
+/* global process */
+var express = require('express'),
+    winston = require('winston'),
+    SplunkStreamEvent = require('winston-splunk-httplogger'),
+    expressLogger = require('express-winston');
 
-var splunkConfig = {
+var app = express();
+
+var splunkSettings = {
     host: process.env.SPLUNK_HOST || 'localhost',
     token: process.env.SPLUNK_TOKEN
 };
 
-var logger = new winston.Logger({
+app.use(expressLogger.logger({
     transports: [
         new winston.transports.Console(),
-        new SplunkStreamEvent({ splunk: splunkConfig })
+        new SplunkStreamEvent({ splunk: splunkSettings })
     ],
-    level: 'debug'
-});
+    level: 'info'
+}));
 
-logger.debug('This is a debug message');
-logger.info('This is an error message');
-logger.error('This is an error message');
+app.listen(process.env.PORT || 3000);
