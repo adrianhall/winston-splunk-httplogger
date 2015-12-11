@@ -30,18 +30,18 @@ var util = require('util'),
  * @property {string} level - the minimum level to send@
  * @property {splunk-logging} instance - the instance of the Splunk Logger
  *
- * @class SplunkStreamingEventLogger
+ * @class SplunkStreamingEvent
  * @constructor
  * @param {object} options - Configuration settings for a new logger
  * @param {string} options.url - The URL of the Splunk endpoint
  * @param {string} options.token - the token for the Splunk endpoint
  */
-var SplunkStreamingEventLogger = function (options) {
+var SplunkStreamingEvent = function (options) {
     /**
      * The name of this logging transport
      * @type {string}
      */
-    this.name = 'SplunkStreamingEventLogger';
+    this.name = 'SplunkStreamingEvent';
 
     /**
      * The minimum level to log
@@ -49,28 +49,86 @@ var SplunkStreamingEventLogger = function (options) {
      */
     this.level = options.level || 'info';
 
-    this.instance = splunk.Logger(options);
+    /**
+     * Mocking Support - specify the Splunk instance
+     * @type {splunk-logging}
+     */
+    this.splunkLibrary = options.splunkSDK || splunk;
+
+    // Create an instance of the splunk logger
+    if (!options.url)
+        throw new Error('winston-splunk-httplogger requires a url option');
+    if (!options.token)
+        throw new Error('winston-splunk-httplogger requires a token option');
+    this.server = splunk.Logger(options);
 };
 
-// Link the defined logger into the Winston system
-util.inherits(SplunkStreamingEventLogger, winston.Transport);
-winston.transports.SplunkStreamingEventLogger = SplunkStreamingEventLogger;
+/**
+ * @extends winston.Transport
+ */
+util.inherits(SplunkStreamingEvent, winston.Transport);
 
 /**
- * Log a message to the transport.
- *
- * @method SplunkStreamingEventLogger.log
- * @param {string} level - the level of the log message
- * @param {string} msg - the message data
- * @param {object} meta - the meta data
- * @param {function} callback - the callback into the winston system
+ * Define a getter so that 'winston.transports.SplunkStreamingEvent
+ * is available and thus backwards compatible
  */
-SplunkStreamingEventLogger.prototype.log = function (level, msg, meta, callback) {
+winston.transports.SplunkStreamingEvent = SplunkStreamingEvent;
+
+/**
+ * Core logging method exposed to Winston.
+ *
+ * @function log
+ * @member SplunkStreamingEvent
+ * @param {string} level - the level at which to log the message
+ * @param {string} msg - the message to log
+ * @param {object} [meta] - any additional meta data to attach
+ * @param {function} callback - Continuation to respond to when complete
+ */
+SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
+    var self = this;
+
+    if (meta instanceof Error) {
+        meta = {
+            errmsg: meta.message,
+            name: meta.name,
+            stack: meta.stack
+        };
+    }
 
     console.log('SplunkStreamingEventLogger:');
     console.log('    Level = ', level);
     console.log('    Message = ', msg);
     console.log('    Meta = ', meta);
 
-    callback(null, true);
-}
+    var payload = {
+        message: {
+            msg: msg
+        },
+        metadata: {
+            source: 'winston',
+            sourcetype: 'winston-splunk-logger'
+        },
+        severity: level
+    }
+
+    if (meta) {
+        if (meta instanceof Error) {
+            payload.message.meta = {
+                error: meta.message,
+                name: meta.name,
+                stack: meta.stack
+            };
+        } else {
+            payload.message.meta = meta;
+        }
+    }
+
+    this.server.send(payload, function (err, resp, body) {
+        if (err)
+            self.emit('error', err);
+        self.emit('logged');
+        callback(null, true);
+    });
+};
+
+module.exports = exports = winston.transports.SplunkStreamingEventLogger;
