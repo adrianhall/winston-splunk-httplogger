@@ -1,6 +1,6 @@
 # winston-splunk-httplogger
 
-A [Winston] transport for logging to a [Splunk] [HTTP Event Collector].
+A [Winston] transport for logging to [Splunk] with a [HTTP Event Collector].
 
 ## Installation
 
