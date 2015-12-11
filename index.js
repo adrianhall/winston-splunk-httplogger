@@ -30,6 +30,8 @@ var util = require('util'),
  * @param {string} [config.level=info] - the minimum level to log
  * @param {object} config.splunk - the Splunk Logger settings
  * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
+ * @param {string} [config.splunk.source=winston] - the source for the events sent to Splunk
+ * @param {string} [config.splunk.sourcetype=winston-splunk-logger] - the sourcetype for the events sent to Splunk
  * @param {string} [config.splunk.host=localhost] - the Splunk HTTP Event Collector host
  * @param {number} [config.splunk.maxRetries=0] - How many times to retry the splunk logger
  * @param {number} [config.splunk.port=8088] - the Splunk HTTP Event Collector port
@@ -58,6 +60,23 @@ var SplunkStreamEvent = function (config) {
     if (!config.splunk || !config.splunk.token) {
         throw new Error('Invalid Configuration: options.splunk is invalid');
     }
+
+    // If source/sourcetype are mentioned in the splunk object, then store the defaults
+    // in this and delete from the splunk object
+    this.defaultMetadata = {
+        source: 'winston',
+        sourcetype: 'winston-splunk-logger'
+    };
+    if (config.splunk.source) {
+        this.defaultMetadata.source = config.splunk.source
+        delete config.splunk.source;
+    }
+    if (config.splunk.sourcetype) {
+        this.defaultMetadata.sourcetype = config.splunk.sourcetype
+        delete config.splunk.sourcetype;
+    }
+    // This gets around a problem with setting maxBatchCount
+    config.splunk.maxBatchCount = 1;
     this.server = new SplunkLogger(config.splunk);
 };
 util.inherits(SplunkStreamEvent, winston.Transport);
@@ -97,8 +116,8 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
             msg: msg
         },
         metadata: {
-            source: 'winston',
-            sourcetype: 'winston-splunk-logger'
+            source: this.defaultMetadata.source,
+            sourcetype: this.defaultMetadata.sourcetype
         },
         severity: level
     };
