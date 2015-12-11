@@ -21,58 +21,56 @@
  */
 var util = require('util'),
     winston = require('winston'),
-    splunk = require('splunk-logging');
+    SplunkLogger = require('splunk-logging').Logger;
 
 /**
- * A class that implements the Winston transport for a Splunk HTTP Event Collector
+ * A class that implements a Winston transport provider for Splunk HTTP Event Collector
  *
- * @property {string} name - the name of the transport
- * @property {string} level - the minimum level to send@
- * @property {splunk-logging} instance - the instance of the Splunk Logger
+ * @param {object} config - Configuration settings for a new Winston transport
+ * @param {string} [config.level=info] - the minimum level to log
+ * @param {object} config.splunk - the Splunk Logger settings
+ * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
+ * @param {string} [config.splunk.host=localhost] - the Splunk HTTP Event Collector host
+ * @param {number} [config.splunk.maxRetries=0] - How many times to retry the splunk logger
+ * @param {number} [config.splunk.port=8088] - the Splunk HTTP Event Collector port
+ * @param {string} [config.splunk.path=/services/collector/event/1.0] - URL path to use
+ * @param {string} [config.splunk.protocol=https] - the protocol to use
+ * @param {string} [config.splunk.url] - URL string to pass to url.parse for the information
+ * @param {string} [config.level=info] - Logging level to use, will show up as the <code>severity</code> field of an event, see
+ *  [SplunkLogger.levels]{@link SplunkLogger#levels} for common levels.
+ * @param {number} [config.batchInterval=0] - Automatically flush events after this many milliseconds.
+ * When set to a non-positive value, events will be sent one by one. This setting is ignored when non-positive.
+ * @param {number} [config.maxBatchSize=0] - Automatically flush events after the size of queued
+ * events exceeds this many bytes. This setting is ignored when non-positive.
+ * @param {number} [config.maxBatchCount=1] - Automatically flush events after this many
+ * events have been queued. Defaults to flush immediately on sending an event. This setting is ignored when non-positive.
  *
- * @class SplunkStreamingEvent
  * @constructor
- * @param {object} options - Configuration settings for a new logger
- * @param {string} options.url - The URL of the Splunk endpoint
- * @param {string} options.token - the token for the Splunk endpoint
  */
 var SplunkStreamingEvent = function (options) {
-    /**
-     * The name of this logging transport
-     * @type {string}
-     */
+    /** @property {string} name - the name of the transport */
     this.name = 'SplunkStreamingEvent';
 
-    /**
-     * The minimum level to log
-     * @type {string}
-     */
+    /** @property {string} level - the minimum level to log */
     this.level = options.level || 'info';
 
-    /**
-     * Mocking Support - specify the Splunk instance
-     * @type {splunk-logging}
-     */
-    this.splunkLibrary = options.splunkSDK || splunk;
-
-    // Create an instance of the splunk logger
-    if (!options.url)
-        throw new Error('winston-splunk-httplogger requires a url option');
-    if (!options.token)
-        throw new Error('winston-splunk-httplogger requires a token option');
-    this.server = splunk.Logger(options);
+    // Verify that we actually have a splunk object and a token
+    if (!options.splunk || !options.splunk.token) {
+        throw new Error('Invalid Configuration: options.splunk is invalid');
+    }
+    console.info('SPLUNK OBJECT: ', options.splunk);
+    this.server = new SplunkLogger(options.splunk);
 };
-
-/**
- * @extends winston.Transport
- */
 util.inherits(SplunkStreamingEvent, winston.Transport);
 
 /**
- * Define a getter so that 'winston.transports.SplunkStreamingEvent
- * is available and thus backwards compatible
+ * Returns the configuration for this logger
+ * @return {Object} Configuration for this logger.
+ * @public
  */
-winston.transports.SplunkStreamingEvent = SplunkStreamingEvent;
+SplunkStreamingEvent.prototype.config = function() {
+    return this.server.config;
+};
 
 /**
  * Core logging method exposed to Winston.
@@ -95,11 +93,6 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
         };
     }
 
-    console.log('SplunkStreamingEventLogger:');
-    console.log('    Level = ', level);
-    console.log('    Message = ', msg);
-    console.log('    Meta = ', meta);
-
     var payload = {
         message: {
             msg: msg
@@ -109,7 +102,7 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
             sourcetype: 'winston-splunk-logger'
         },
         severity: level
-    }
+    };
 
     if (meta) {
         if (meta instanceof Error) {
@@ -124,11 +117,14 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
     }
 
     this.server.send(payload, function (err, resp, body) {
-        if (err)
-            self.emit('error', err);
+        if (err) self.emit('error', err);
         self.emit('logged');
         callback(null, true);
     });
 };
 
-module.exports = exports = winston.transports.SplunkStreamingEventLogger;
+// Insert this object into the Winston transports list
+winston.transports.SplunkStreamingEvent = SplunkStreamingEvent;
+
+// Export the Winston transport
+module.exports = exports = winston.transports.SplunkStreamingEvent;

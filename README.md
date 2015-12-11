@@ -9,24 +9,38 @@ A [Winston] transport for logging to a [Splunk] [HTTP Event Collector].
 ## Usage
 
     var winston = require('winston'),
-        splunkLogger = require('winston-splunk-httplogger');
+        SplunkStreamEvent = require('winston-splunk-httplogger');
 
-    var options = {
-        level: 'info',
-
-        // This is your Splunk Instance Infromation
-        url: 'https://splunk.local:8088',
-        token: 'MY-TOKEN'
+    var splunkSettings = {
+            token: process.env.SPLUNK_TOKEN,
+            host: process.env.SPLUNK_HOST || 'localhost'
     };
 
-    winston.add(splunkLogger, options);
-
     // Now use winston as normal
+    var logger = new winston.Logger({
+        transports: [
+            new winston.transports.Console(),
+            new SplunkStreamEvent({ splunk: splunkSettings })
+        ]
+    });
+
+    logger.info('This is sent to Splunk');
 
 ## Configuring Splunk
 
+  1. Log into your Splunk instance as an Administrator
+  2. Go to Settings &gt; Data Inputs
+  3. Click on HTTP Event Collector under Local inputs
+  4. Click on New Token
+  5. Walk through the wizard to configure your new HTTP Event Collector
+
+Splunk will provide you with a token at the end of the wizard.  You need to insert that
+token into the splunk object you use to create the SplunkStreamEvent() object.  In the
+example above, this is done by placing the token in the SPLUNK_TOKEN environment variable.
+
 ## See Also
 
+  * [HTTP Event Collector]
   * [Splunk logging for JavaScript]
 
 [Winston]: https://github.com/winstonjs/winston

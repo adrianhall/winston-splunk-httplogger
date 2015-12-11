@@ -29,7 +29,7 @@
     "mocha": "^2.3.4"
   },
   "dependencies": {
-    "splunk-logging": "^0.8.0",
+    "splunk-logging": "^0.9.0",
     "util": "^0.10.3",
     "winston": "^2.1.1"
   },
