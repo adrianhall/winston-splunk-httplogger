@@ -58,7 +58,6 @@ var SplunkStreamingEvent = function (options) {
     if (!options.splunk || !options.splunk.token) {
         throw new Error('Invalid Configuration: options.splunk is invalid');
     }
-    console.info('SPLUNK OBJECT: ', options.splunk);
     this.server = new SplunkLogger(options.splunk);
 };
 util.inherits(SplunkStreamingEvent, winston.Transport);
@@ -111,7 +110,7 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
                 name: meta.name,
                 stack: meta.stack
             };
-        } else {
+        } else if (meta.length) {
             payload.message.meta = meta;
         }
     }
