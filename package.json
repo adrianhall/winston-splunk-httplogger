@@ -1,6 +1,6 @@
 {
   "name": "winston-splunk-httplogger",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A Winston compatible transport for logging to a Splunk HTTP Event Collector",
   "homepage": "https://github.com/adrianhall/winston-splunk-httplogger",
   "main": "index.js",
