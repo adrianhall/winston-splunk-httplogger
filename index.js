@@ -47,27 +47,27 @@ var util = require('util'),
  *
  * @constructor
  */
-var SplunkStreamingEvent = function (options) {
+var SplunkStreamEvent = function (config) {
     /** @property {string} name - the name of the transport */
-    this.name = 'SplunkStreamingEvent';
+    this.name = 'SplunkStreamEvent';
 
     /** @property {string} level - the minimum level to log */
-    this.level = options.level || 'info';
+    this.level = config.level || 'info';
 
     // Verify that we actually have a splunk object and a token
-    if (!options.splunk || !options.splunk.token) {
+    if (!config.splunk || !config.splunk.token) {
         throw new Error('Invalid Configuration: options.splunk is invalid');
     }
-    this.server = new SplunkLogger(options.splunk);
+    this.server = new SplunkLogger(config.splunk);
 };
-util.inherits(SplunkStreamingEvent, winston.Transport);
+util.inherits(SplunkStreamEvent, winston.Transport);
 
 /**
  * Returns the configuration for this logger
- * @return {Object} Configuration for this logger.
+ * @returns {Object} Configuration for this logger.
  * @public
  */
-SplunkStreamingEvent.prototype.config = function() {
+SplunkStreamEvent.prototype.config = function() {
     return this.server.config;
 };
 
@@ -75,13 +75,13 @@ SplunkStreamingEvent.prototype.config = function() {
  * Core logging method exposed to Winston.
  *
  * @function log
- * @member SplunkStreamingEvent
+ * @member SplunkStreamEvent
  * @param {string} level - the level at which to log the message
  * @param {string} msg - the message to log
  * @param {object} [meta] - any additional meta data to attach
  * @param {function} callback - Continuation to respond to when complete
  */
-SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
+SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
     var self = this;
 
     if (meta instanceof Error) {
@@ -115,7 +115,7 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
         }
     }
 
-    this.server.send(payload, function (err, resp, body) {
+    this.server.send(payload, function (err) {
         if (err) self.emit('error', err);
         self.emit('logged');
         callback(null, true);
@@ -123,7 +123,7 @@ SplunkStreamingEvent.prototype.log = function (level, msg, meta, callback) {
 };
 
 // Insert this object into the Winston transports list
-winston.transports.SplunkStreamingEvent = SplunkStreamingEvent;
+winston.transports.SplunkStreamEvent = SplunkStreamEvent;
 
 // Export the Winston transport
-module.exports = exports = winston.transports.SplunkStreamingEvent;
+module.exports = exports = winston.transports.SplunkStreamEvent;
