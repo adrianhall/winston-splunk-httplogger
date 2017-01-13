@@ -38,6 +38,7 @@ var util = require('util'),
  * @param {string} [config.splunk.path=/services/collector/event/1.0] - URL path to use
  * @param {string} [config.splunk.protocol=https] - the protocol to use
  * @param {string} [config.splunk.url] - URL string to pass to url.parse for the information
+ * @param {function} [config.splunk.eventFormatter] - Formats events, returning an event as a string, <code>function(message, severity)</code>
  * @param {string} [config.level=info] - Logging level to use, will show up as the <code>severity</code> field of an event, see
  *  [SplunkLogger.levels]{@link SplunkLogger#levels} for common levels.
  * @param {number} [config.batchInterval=0] - Automatically flush events after this many milliseconds.
@@ -75,10 +76,10 @@ var SplunkStreamEvent = function (config) {
         this.defaultMetadata.sourcetype = config.splunk.sourcetype
         delete config.splunk.sourcetype;
     }
-    // If evnetFormatter callback mentioned in the splunk object.
-    this.overrideEventFormatter = null;
-    if (config.splunk.eventFormatter) {
-        this.overrideEventFormatter = config.splunk.eventFormatter
+    // If eventFormatter callback mentioned in the splunk object.
+    this.eventFormatter = null;
+    if (typeof config.splunk.eventFormatter !== "undefined") {
+        this.eventFormatter = config.splunk.eventFormatter
         delete config.splunk.eventFormatter;
     }
     // This gets around a problem with setting maxBatchCount
@@ -147,10 +148,10 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
     });
 
     // If custom eventFormatter defined.
-    if (this.overrideEventFormatter) {
+    if (this.eventFormatter) {
       var parent = this;
       this.server.eventFormatter = function (message, severity) {
-        var event = parent.overrideEventFormatter(message, severity);
+        var event = parent.eventFormatter(message, severity);
         return event;
       }
     }
