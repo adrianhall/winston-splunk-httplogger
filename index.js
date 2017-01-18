@@ -136,7 +136,7 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
                 name: meta.name,
                 stack: meta.stack
             };
-        } else if (meta.length) {
+        } else if (Object.keys(meta).length) {
             payload.message.meta = meta;
         }
     }
