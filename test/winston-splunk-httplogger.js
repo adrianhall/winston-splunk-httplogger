@@ -73,4 +73,9 @@ describe('createLogger', function () {
         var s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
         assert.strictEqual(1, s.config().maxBatchCount);
     });
+
+    it('should allow an override for the default eventFormatter', function() {
+        var s = new SplunkStreamEvent({ splunk: { eventFormatter: 'foo', token: 'foo' }});
+        assert.strictEqual('foo', s.eventFormatter);
+    });
 });

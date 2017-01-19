@@ -38,6 +38,7 @@ var util = require('util'),
  * @param {string} [config.splunk.path=/services/collector/event/1.0] - URL path to use
  * @param {string} [config.splunk.protocol=https] - the protocol to use
  * @param {string} [config.splunk.url] - URL string to pass to url.parse for the information
+ * @param {function} [config.splunk.eventFormatter] - Formats events, returning an event as a string, <code>function(message, severity)</code>
  * @param {string} [config.level=info] - Logging level to use, will show up as the <code>severity</code> field of an event, see
  *  [SplunkLogger.levels]{@link SplunkLogger#levels} for common levels.
  * @param {number} [config.batchInterval=0] - Automatically flush events after this many milliseconds.
@@ -74,6 +75,12 @@ var SplunkStreamEvent = function (config) {
     if (config.splunk.sourcetype) {
         this.defaultMetadata.sourcetype = config.splunk.sourcetype
         delete config.splunk.sourcetype;
+    }
+    // If eventFormatter callback mentioned in the splunk object.
+    this.eventFormatter = null;
+    if (typeof config.splunk.eventFormatter !== "undefined") {
+        this.eventFormatter = config.splunk.eventFormatter
+        delete config.splunk.eventFormatter;
     }
     // This gets around a problem with setting maxBatchCount
     config.splunk.maxBatchCount = 1;
@@ -129,7 +136,7 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
                 name: meta.name,
                 stack: meta.stack
             };
-        } else if (meta.length) {
+        } else if (Object.keys(meta).length) {
             payload.message.meta = meta;
         }
     }
@@ -139,6 +146,15 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
         self.emit('logged');
         callback(null, true);
     });
+
+    // If custom eventFormatter defined.
+    if (this.eventFormatter) {
+      var parent = this;
+      this.server.eventFormatter = function (message, severity) {
+        var event = parent.eventFormatter(message, severity);
+        return event;
+      }
+    }
 };
 
 // Insert this object into the Winston transports list
