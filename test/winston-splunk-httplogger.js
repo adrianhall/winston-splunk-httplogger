@@ -76,6 +76,6 @@ describe('createLogger', function () {
 
     it('should allow an override for the default eventFormatter', function() {
         var s = new SplunkStreamEvent({ splunk: { eventFormatter: 'foo', token: 'foo' }});
-        assert.strictEqual('foo', s.eventFormatter);
+        assert.strictEqual('foo', s.server.eventFormatter);
     });
 });

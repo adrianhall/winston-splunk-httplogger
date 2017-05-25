@@ -76,15 +76,15 @@ var SplunkStreamEvent = function (config) {
         this.defaultMetadata.sourcetype = config.splunk.sourcetype
         delete config.splunk.sourcetype;
     }
-    // If eventFormatter callback mentioned in the splunk object.
-    this.eventFormatter = null;
-    if (typeof config.splunk.eventFormatter !== "undefined") {
-        this.eventFormatter = config.splunk.eventFormatter
-        delete config.splunk.eventFormatter;
-    }
+
     // This gets around a problem with setting maxBatchCount
     config.splunk.maxBatchCount = 1;
     this.server = new SplunkLogger(config.splunk);
+
+    // Override the default event formatter
+    if (config.splunk.eventFormatter) {
+      this.server.eventFormatter = config.splunk.eventFormatter;
+    }
 };
 util.inherits(SplunkStreamEvent, winston.Transport);
 
@@ -146,15 +146,6 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
         self.emit('logged');
         callback(null, true);
     });
-
-    // If custom eventFormatter defined.
-    if (this.eventFormatter) {
-      var parent = this;
-      this.server.eventFormatter = function (message, severity) {
-        var event = parent.eventFormatter(message, severity);
-        return event;
-      }
-    }
 };
 
 // Insert this object into the Winston transports list
