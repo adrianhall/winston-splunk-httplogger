@@ -51,6 +51,8 @@ var SplunkLogger = require('splunk-logging').Logger;
  * @constructor
  */
 var SplunkStreamEvent = function (config) {
+  winston.Transport.call(this, config);
+
   /** @property {string} name - the name of the transport */
   this.name = 'SplunkStreamEvent';
 
@@ -86,6 +88,7 @@ var SplunkStreamEvent = function (config) {
     this.server.eventFormatter = config.splunk.eventFormatter;
   }
 };
+
 util.inherits(SplunkStreamEvent, winston.Transport);
 
 /**
