@@ -3,7 +3,7 @@
 A [Winston] transport for logging to [Splunk] with a [HTTP Event Collector].
 
   [![Depedency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger)
-  [![devDependency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger/dev-status.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger#info=devDependencies)
+  [![devDependency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger/dev-status.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger?type=dev)
 
 ## Installation
 
