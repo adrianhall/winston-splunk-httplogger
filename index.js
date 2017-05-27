@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Adrian Hall
+ * Copyright (C) 2015-2017 Adrian Hall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,9 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-var util = require('util'),
-    winston = require('winston'),
-    SplunkLogger = require('splunk-logging').Logger;
+var util = require('util');
+var winston = require('winston');
+var SplunkLogger = require('splunk-logging').Logger;
 
 /**
  * A class that implements a Winston transport provider for Splunk HTTP Event Collector
@@ -51,40 +51,40 @@ var util = require('util'),
  * @constructor
  */
 var SplunkStreamEvent = function (config) {
-    /** @property {string} name - the name of the transport */
-    this.name = 'SplunkStreamEvent';
+  /** @property {string} name - the name of the transport */
+  this.name = 'SplunkStreamEvent';
 
-    /** @property {string} level - the minimum level to log */
-    this.level = config.level || 'info';
+  /** @property {string} level - the minimum level to log */
+  this.level = config.level || 'info';
 
-    // Verify that we actually have a splunk object and a token
-    if (!config.splunk || !config.splunk.token) {
-        throw new Error('Invalid Configuration: options.splunk is invalid');
-    }
+  // Verify that we actually have a splunk object and a token
+  if (!config.splunk || !config.splunk.token) {
+    throw new Error('Invalid Configuration: options.splunk is invalid');
+  }
 
-    // If source/sourcetype are mentioned in the splunk object, then store the defaults
-    // in this and delete from the splunk object
-    this.defaultMetadata = {
-        source: 'winston',
-        sourcetype: 'winston-splunk-logger'
-    };
-    if (config.splunk.source) {
-        this.defaultMetadata.source = config.splunk.source
-        delete config.splunk.source;
-    }
-    if (config.splunk.sourcetype) {
-        this.defaultMetadata.sourcetype = config.splunk.sourcetype
-        delete config.splunk.sourcetype;
-    }
+  // If source/sourcetype are mentioned in the splunk object, then store the
+  // defaults in this and delete from the splunk object
+  this.defaultMetadata = {
+    source: 'winston',
+    sourcetype: 'winston-splunk-logger'
+  };
+  if (config.splunk.source) {
+    this.defaultMetadata.source = config.splunk.source;
+    delete config.splunk.source;
+  }
+  if (config.splunk.sourcetype) {
+    this.defaultMetadata.sourcetype = config.splunk.sourcetype;
+    delete config.splunk.sourcetype;
+  }
 
-    // This gets around a problem with setting maxBatchCount
-    config.splunk.maxBatchCount = 1;
-    this.server = new SplunkLogger(config.splunk);
+  // This gets around a problem with setting maxBatchCount
+  config.splunk.maxBatchCount = 1;
+  this.server = new SplunkLogger(config.splunk);
 
-    // Override the default event formatter
-    if (config.splunk.eventFormatter) {
-      this.server.eventFormatter = config.splunk.eventFormatter;
-    }
+  // Override the default event formatter
+  if (config.splunk.eventFormatter) {
+    this.server.eventFormatter = config.splunk.eventFormatter;
+  }
 };
 util.inherits(SplunkStreamEvent, winston.Transport);
 
@@ -93,8 +93,8 @@ util.inherits(SplunkStreamEvent, winston.Transport);
  * @returns {Object} Configuration for this logger.
  * @public
  */
-SplunkStreamEvent.prototype.config = function() {
-    return this.server.config;
+SplunkStreamEvent.prototype.config = function () {
+  return this.server.config;
 };
 
 /**
@@ -108,44 +108,46 @@ SplunkStreamEvent.prototype.config = function() {
  * @param {function} callback - Continuation to respond to when complete
  */
 SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
-    var self = this;
+  var self = this;
 
-    if (meta instanceof Error) {
-        meta = {
-            errmsg: meta.message,
-            name: meta.name,
-            stack: meta.stack
-        };
-    }
-
-    var payload = {
-        message: {
-            msg: msg
-        },
-        metadata: {
-            source: this.defaultMetadata.source,
-            sourcetype: this.defaultMetadata.sourcetype
-        },
-        severity: level
+  if (meta instanceof Error) {
+    meta = {
+      errmsg: meta.message,
+      name: meta.name,
+      stack: meta.stack
     };
+  }
 
-    if (meta) {
-        if (meta instanceof Error) {
-            payload.message.meta = {
-                error: meta.message,
-                name: meta.name,
-                stack: meta.stack
-            };
-        } else if (Object.keys(meta).length) {
-            payload.message.meta = meta;
-        }
+  var payload = {
+    message: {
+      msg: msg
+    },
+    metadata: {
+      source: this.defaultMetadata.source,
+      sourcetype: this.defaultMetadata.sourcetype
+    },
+    severity: level
+  };
+
+  if (meta) {
+    if (meta instanceof Error) {
+      payload.message.meta = {
+        error: meta.message,
+        name: meta.name,
+        stack: meta.stack
+      };
+    } else if (Object.keys(meta).length) {
+      payload.message.meta = meta;
     }
+  }
 
-    this.server.send(payload, function (err) {
-        if (err) self.emit('error', err);
-        self.emit('logged');
-        callback(null, true);
-    });
+  this.server.send(payload, function (err) {
+    if (err) {
+      self.emit('error', err);
+    }
+    self.emit('logged');
+    callback(null, true);
+  });
 };
 
 // Insert this object into the Winston transports list
