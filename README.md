@@ -5,6 +5,10 @@ A [Winston] transport for logging to [Splunk] with a [HTTP Event Collector].
   [![Depedency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger)
   [![devDependency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger/dev-status.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger?type=dev)
 
+## Compatibility
+
+[Winston] >= `3.0.0` is required for `winston-splunk-httplogger` >= `2.0.0`. Please use version `1.2.2` for legacy [Winston] support.
+
 ## Installation
 
 ```sh

@@ -21,7 +21,13 @@
  */
 var util = require('util');
 var winston = require('winston');
+var isStream = require('is-stream');
 var SplunkLogger = require('splunk-logging').Logger;
+
+if (!isStream(new winston.Transport())) {
+  console.error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
+  throw new Error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
+}
 
 /**
  * A class that implements a Winston transport provider for Splunk HTTP Event Collector
@@ -105,21 +111,17 @@ SplunkStreamEvent.prototype.config = function () {
  *
  * @function log
  * @member SplunkStreamEvent
- * @param {string} level - the level at which to log the message
- * @param {string} msg - the message to log
- * @param {object} [meta] - any additional meta data to attach
+ * @param {object} [info] - the log message info object
  * @param {function} callback - Continuation to respond to when complete
  */
-SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
+SplunkStreamEvent.prototype.log = function (info, callback) {
   var self = this;
+  var level = info[Symbol.for('level')];
+  var msg = info['message'];
+  var meta = Object.assign({}, info);
 
-  if (meta instanceof Error) {
-    meta = {
-      errmsg: meta.message,
-      name: meta.name,
-      stack: meta.stack
-    };
-  }
+  delete meta[Symbol.for('level')];
+  delete meta[Symbol.for('message')];
 
   var payload = {
     message: {
@@ -133,13 +135,7 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
   };
 
   if (meta) {
-    if (meta instanceof Error) {
-      payload.message.meta = {
-        error: meta.message,
-        name: meta.name,
-        stack: meta.stack
-      };
-    } else if (Object.keys(meta).length) {
+    if (Object.keys(meta).length) {
       payload.message.meta = meta;
     }
   }

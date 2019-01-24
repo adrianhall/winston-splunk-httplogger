@@ -3,30 +3,21 @@ var assert = require('assert');
 
 describe('createLogger', function () {
     it('should error without config', function() {
-        try {
-            var s = new SplunkStreamEvent();
-            assert.ok(false, 'Expected an error');
-        } catch (err) {
-            assert.ok(err);
-        }
+        assert.throws(function() {
+            new SplunkStreamEvent();
+        });
     });
 
     it('should error without a splunk object', function() {
-        try {
-            var s = new SplunkStreamEvent({});
-            assert.ok(false, 'Expected an error');
-        } catch (err) {
-            assert.ok(err);
-        }
+        assert.throws(function() {
+            new SplunkStreamEvent({});
+        });
     });
 
     it('should error without a splunk token', function() {
-        try {
-            var s = new SplunkStreamEvent({ splunk: {} });
-            assert.ok(false, 'Expected an error');
-        } catch (err) {
-            assert.ok(err);
-        }
+        assert.throws(function() {
+            new SplunkStreamEvent({ splunk: {} });
+        });
     });
 
     it('should create a suitable logger with minimal config', function() {
@@ -77,5 +68,109 @@ describe('createLogger', function () {
     it('should allow an override for the default eventFormatter', function() {
         var s = new SplunkStreamEvent({ splunk: { eventFormatter: 'foo', token: 'foo' }});
         assert.strictEqual('foo', s.server.eventFormatter);
+    });
+
+    // Unsure how to write this test.
+    xit('should throw an error if used with an unsupported version of Winston', function() {
+        assert.throws(function() {
+            new SplunkStreamEvent({ splunk: { token: 'foo' }});
+        });
+    });
+});
+
+describe('log()', function() {
+    var s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
+
+    describe('splunk payload generation from the `info` object', function() {
+        var info = {
+            message: 'non-cannonical message',
+            level: 'non-cannonical level',
+            anotherKey: 'foo bar'
+        };
+        info[Symbol.for('level')] = 'cannonical level';
+        info[Symbol.for('message')] = 'cannonical message';
+
+        it('sets the `severity` to the cannonical `level`', function() {
+            s.server = {
+                send: function(payload) {
+                    assert.strictEqual(payload.severity, 'cannonical level');
+                }
+            };
+            s.log(info);
+        });
+
+        it('sets the `msg` to the non-cannonical `message`', function() {
+            s.server = {
+                send: function(payload) {
+                    assert.strictEqual(payload.message.msg, info.message);
+                }
+            };
+            s.log(info);
+        });
+
+        it('includes all other keys in the `meta`', function() {
+            s.server = {
+                send: function(payload) {
+                    assert.deepStrictEqual(payload.message.meta, {
+                        anotherKey: 'foo bar',
+                        message: 'non-cannonical message',
+                        level: 'non-cannonical level'
+                    });
+                }
+            };
+            s.log(info);
+        });
+    });
+
+    it('sends the payload to splunk', function() {
+        var called = false;
+        s.server = {
+            send: function(payload, callback) {
+                called = true;
+            }
+        };
+        s.log({});
+        assert.ok(called, 'send() called');
+    });
+
+    it('calls the provided callback after payload transmission', function() {
+        var called = false;
+        s.server = {
+            send: function(payload, callback) {
+                callback();
+            }
+        };
+        s.log({}, function() {
+            called = true;
+        });
+        assert.ok(called, 'callback called');
+    });
+
+    it('triggers a `logged` event after payload transmission', function() {
+        var called = false;
+        s.on('logged', function() {
+            called = true;
+        });
+        s.server = {
+            send: function(payload, callback) {
+                callback();
+            }
+        };
+        s.log({}, function() {});
+        assert.ok(called, 'event emitted');
+    });
+
+    it('triggers an `error` event if the payload transmission fails', function() {
+        var called = false;
+        s.on('error', function() {
+            called = true;
+        });
+        s.server = {
+            send: function(payload, callback) {
+                callback(new Error());
+            }
+        };
+        s.log({}, function() {});
+        assert.ok(called, 'event emitted');
     });
 });
