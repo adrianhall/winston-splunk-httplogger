@@ -21,7 +21,13 @@
  */
 var util = require('util');
 var winston = require('winston');
+var isStream = require('is-stream');
 var SplunkLogger = require('splunk-logging').Logger;
+
+if (!isStream(new winston.Transport())) {
+  console.error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
+  throw new Error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
+}
 
 /**
  * A class that implements a Winston transport provider for Splunk HTTP Event Collector
