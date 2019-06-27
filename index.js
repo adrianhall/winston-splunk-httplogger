@@ -131,10 +131,7 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
     severity: level
   };
 
-  this.server.send(payload, function (err) {
-    if (err) {
-      self.emit('error', err);
-    }
+  this.server.send(payload, function () {
     self.emit('logged');
     callback(null, true);
   });
