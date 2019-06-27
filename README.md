@@ -70,6 +70,7 @@ Create a new instance of `SplunkStreamEvent`. Takes the following configuration:
  * **[config.maxBatchCount=1]:** automatically flush events after this many
    events have been queued. Defaults to flush immediately on sending an
    event. This setting is ignored when non-positive
+ * **[config.error]:** callback function for errors
 
 ## Configuring Splunk
 
