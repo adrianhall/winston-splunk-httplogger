@@ -121,10 +121,6 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
   var self = this;
   var level = info[Symbol.for('level')];
   var msg = info['message'];
-  var meta = Object.assign({}, info);
-
-  delete meta[Symbol.for('level')];
-  delete meta[Symbol.for('message')];
 
   var payload = {
     message: {
@@ -136,12 +132,6 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
     },
     severity: level
   };
-
-  if (meta) {
-    if (Object.keys(meta).length) {
-      payload.message.meta = meta;
-    }
-  }
 
   this.server.send(payload, function (err) {
     if (err) {
