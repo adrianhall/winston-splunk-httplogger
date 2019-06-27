@@ -121,12 +121,14 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
   var self = this;
   var level = info[Symbol.for('level')];
   var msg = info['message'];
+  const customSource = info['source'];
+  const customSourcetype = info['sourcetype'];
 
   var payload = {
     message: msg,
     metadata: {
-      source: this.defaultMetadata.source,
-      sourcetype: this.defaultMetadata.sourcetype
+      source: customSource || this.defaultMetadata.source,
+      sourcetype: customSourcetype || this.defaultMetadata.sourcetype
     },
     severity: level
   };
