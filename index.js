@@ -53,6 +53,7 @@ if (!isStream(new winston.Transport())) {
  * events exceeds this many bytes. This setting is ignored when non-positive.
  * @param {number} [config.maxBatchCount=1] - Automatically flush events after this many
  * events have been queued. Defaults to flush immediately on sending an event. This setting is ignored when non-positive.
+ * @param {function} [config.splunk.error] – A callback function for errors: <code>function(err, context)</code>.
  *
  * @constructor
  */
@@ -88,6 +89,8 @@ var SplunkStreamEvent = function (config) {
   // This gets around a problem with setting maxBatchCount
   config.splunk.maxBatchCount = 1;
   this.server = new SplunkLogger(config.splunk);
+
+  this.server.error = config.splunk.error;
 
   // Override the default event formatter
   if (config.splunk.eventFormatter) {
