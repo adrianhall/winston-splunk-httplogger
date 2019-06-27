@@ -90,7 +90,10 @@ var SplunkStreamEvent = function (config) {
   config.splunk.maxBatchCount = 1;
   this.server = new SplunkLogger(config.splunk);
 
-  this.server.error = config.splunk.error;
+  // Override the default error handler
+  if (config.splunk.error) {
+    this.server.error = config.splunk.error;
+  }
 
   // Override the default event formatter
   if (config.splunk.eventFormatter) {
