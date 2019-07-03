@@ -128,7 +128,9 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
   const customSourcetype = info['sourcetype'];
 
   var payload = {
-    message: msg,
+    message: {
+      msg: msg
+    },
     metadata: {
       source: customSource || this.defaultMetadata.source,
       sourcetype: customSourcetype || this.defaultMetadata.sourcetype
