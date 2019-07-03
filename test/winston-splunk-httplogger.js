@@ -107,19 +107,6 @@ describe('log()', function() {
             };
             s.log(info);
         });
-
-        it('includes all other keys in the `meta`', function() {
-            s.server = {
-                send: function(payload) {
-                    assert.deepStrictEqual(payload.message.meta, {
-                        anotherKey: 'foo bar',
-                        message: 'non-cannonical message',
-                        level: 'non-cannonical level'
-                    });
-                }
-            };
-            s.log(info);
-        });
     });
 
     it('sends the payload to splunk', function() {
@@ -154,20 +141,6 @@ describe('log()', function() {
         s.server = {
             send: function(payload, callback) {
                 callback();
-            }
-        };
-        s.log({}, function() {});
-        assert.ok(called, 'event emitted');
-    });
-
-    it('triggers an `error` event if the payload transmission fails', function() {
-        var called = false;
-        s.on('error', function() {
-            called = true;
-        });
-        s.server = {
-            send: function(payload, callback) {
-                callback(new Error());
             }
         };
         s.log({}, function() {});
