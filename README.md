@@ -48,6 +48,7 @@ Create a new instance of `SplunkStreamEvent`. Takes the following configuration:
  * **config.splunk.token:** the Splunk HTTP Event Collector token
  * **[config.level=info]:** logging level to use, will show up as the `severity`
    field of an event
+ * **[config.splunk.index=winston-index]:** the index for the events sent to Splunk
  * **[config.splunk.source=winston]:** the source for the events sent to Splunk
  * **[config.splunk.sourcetype=winston-splunk-logger]:** the sourcetype for the
    events sent to Splunk
