@@ -36,6 +36,7 @@ if (!isStream(new winston.Transport())) {
  * @param {string} [config.level=info] - the minimum level to log
  * @param {object} config.splunk - the Splunk Logger settings
  * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
+ * @param {string} [config.splunk.index=winston-index] - the index that events will go to in Splunk
  * @param {string} [config.splunk.source=winston] - the source for the events sent to Splunk
  * @param {string} [config.splunk.sourcetype=winston-splunk-logger] - the sourcetype for the events sent to Splunk
  * @param {string} [config.splunk.host=localhost] - the Splunk HTTP Event Collector host
