@@ -83,23 +83,23 @@ describe('log()', function() {
 
     describe('splunk payload generation from the `info` object', function() {
         var info = {
-            message: 'non-cannonical message',
-            level: 'non-cannonical level',
+            message: 'non-canonical message',
+            level: 'non-canonical level',
             anotherKey: 'foo bar'
         };
-        info[Symbol.for('level')] = 'cannonical level';
-        info[Symbol.for('message')] = 'cannonical message';
+        info[Symbol.for('level')] = 'canonical level';
+        info[Symbol.for('message')] = 'canonical message';
 
-        it('sets the `severity` to the cannonical `level`', function() {
+        it('sets the `severity` to the canonical `level`', function() {
             s.server = {
                 send: function(payload) {
-                    assert.strictEqual(payload.severity, 'cannonical level');
+                    assert.strictEqual(payload.severity, 'canonical level');
                 }
             };
             s.log(info);
         });
 
-        it('sets the `msg` to the non-cannonical `message`', function() {
+        it('sets the `msg` to the non-canonical `message`', function() {
             s.server = {
                 send: function(payload) {
                     assert.strictEqual(payload.message.msg, info.message);
@@ -113,8 +113,8 @@ describe('log()', function() {
                 send: function(payload) {
                     assert.deepStrictEqual(payload.message.meta, {
                         anotherKey: 'foo bar',
-                        message: 'non-cannonical message',
-                        level: 'non-cannonical level'
+                        message: 'non-canonical message',
+                        level: 'non-canonical level'
                     });
                 }
             };

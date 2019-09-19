@@ -90,10 +90,6 @@ var SplunkStreamEvent = function (config) {
     this.defaultMetadata.index = config.splunk.index;
     delete config.splunk.index;
   }
-  if (config.splunk.host) {
-    this.defaultMetadata.host = config.splunk.host;
-    delete config.splunk.host;
-  }
 
   // This gets around a problem with setting maxBatchCount
   config.splunk.maxBatchCount = 1;
@@ -132,12 +128,13 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
 
   delete meta[Symbol.for('level')];
   delete meta[Symbol.for('message')];
+  var splunkInfo = info.splunk || {};
 
   var payload = {
     message: {
       msg: msg
     },
-    metadata: this.defaultMetadata,
+    metadata: Object.assign({}, this.defaultMetadata, splunkInfo),
     severity: level
   };
 

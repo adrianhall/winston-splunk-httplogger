@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/adrianhall/winston-splunk-httplogger.git"
   },
+  "engines" : { "node" : ">=8.0" },
   "keywords": [
     "splunk",
     "winston",
@@ -28,7 +29,7 @@
     "assert": "^1.4.1",
     "chai": "^4.0.0",
     "eslint": "^6.0.1",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.3",
     "winston": "^3.1.0"
   },
   "dependencies": {
