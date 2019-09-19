@@ -1,6 +1,6 @@
 {
   "name": "winston-splunk-httplogger",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A Winston compatible transport for logging to a Splunk HTTP Event Collector",
   "homepage": "https://github.com/adrianhall/winston-splunk-httplogger",
   "main": "index.js",
@@ -12,7 +12,9 @@
     "type": "git",
     "url": "https://github.com/adrianhall/winston-splunk-httplogger.git"
   },
-  "engines" : { "node" : ">=8.0" },
+  "engines": {
+    "node": ">=8.0"
+  },
   "keywords": [
     "splunk",
     "winston",
