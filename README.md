@@ -27,7 +27,7 @@ var splunkSettings = {
 };
 
 // Now use winston as normal
-var logger = new winston.Logger({
+var logger = new winston.createLogger({
     transports: [
         new winston.transports.Console(),
         new SplunkStreamEvent({ splunk: splunkSettings })
