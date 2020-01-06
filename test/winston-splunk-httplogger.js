@@ -1,5 +1,5 @@
 var SplunkStreamEvent = require('..');
-var assert = require('assert');
+const { expect, assert } = require('chai')
 
 describe('createLogger', function () {
     it('should error without config', function() {
@@ -68,13 +68,6 @@ describe('createLogger', function () {
     it('should allow an override for the default eventFormatter', function() {
         var s = new SplunkStreamEvent({ splunk: { eventFormatter: 'foo', token: 'foo' }});
         assert.strictEqual('foo', s.server.eventFormatter);
-    });
-
-    // Unsure how to write this test.
-    xit('should throw an error if used with an unsupported version of Winston', function() {
-        assert.throws(function() {
-            new SplunkStreamEvent({ splunk: { token: 'foo' }});
-        });
     });
 });
 
