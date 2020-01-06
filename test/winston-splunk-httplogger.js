@@ -1,5 +1,5 @@
 var SplunkStreamEvent = require('..');
-const { expect, assert } = require('chai')
+const { assert } = require('chai')
 
 describe('createLogger', function () {
     it('should error without config', function() {
