@@ -144,10 +144,13 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
     }
   }
 
-  this.server.send(payload, function (err) {
+  this.server.send(payload, function (err, resp) {
     if (err) {
       self.emit('error', err);
+    } else if (resp.statusCode >= 400) {
+      self.emit('error', 'Request failed with status code ' + resp.statusCode);    
     }
+    
     self.emit('logged');
     callback(null, true);
   });
