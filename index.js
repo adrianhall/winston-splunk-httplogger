@@ -34,7 +34,6 @@ if (!isStream(new winston.Transport())) {
  *
  * @param {object} config - Configuration settings for a new Winston transport
  * @param {string} [config.level=info] - the minimum level to log
- * @param {boolean} [config.exitOnError=true] - whether an unexpected request error causes the javascript process to exit.
  * @param {object} config.splunk - the Splunk Logger settings
  * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
  * @param {string} [config.splunk.index=winston-index] - the index that events will go to in Splunk
@@ -55,6 +54,7 @@ if (!isStream(new winston.Transport())) {
  * events exceeds this many bytes. This setting is ignored when non-positive.
  * @param {number} [config.maxBatchCount=1] - Automatically flush events after this many
  * events have been queued. Defaults to flush immediately on sending an event. This setting is ignored when non-positive.
+ * @param {boolean} [config.exitOnError=true] - whether an unexpected request error causes the javascript process to exit.
  *
  * @constructor
  */
