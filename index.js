@@ -34,6 +34,7 @@ if (!isStream(new winston.Transport())) {
  *
  * @param {object} config - Configuration settings for a new Winston transport
  * @param {string} [config.level=info] - the minimum level to log
+ * @param {boolean} [config.exitOnError=true] - whether an unexpected request error causes the javascript process to exit.
  * @param {object} config.splunk - the Splunk Logger settings
  * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
  * @param {string} [config.splunk.index=winston-index] - the index that events will go to in Splunk
@@ -65,6 +66,7 @@ var SplunkStreamEvent = function (config) {
 
   /** @property {string} level - the minimum level to log */
   this.level = config.level || 'info';
+  this.exitOnError = typeof config.exitOnError != 'boolean' || config.exitOnError;
 
   // Verify that we actually have a splunk object and a token
   if (!config.splunk || !config.splunk.token) {
@@ -145,7 +147,7 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
   }
 
   this.server.send(payload, function (err) {
-    if (err) {
+    if (err && self.exitOnError) {
       self.emit('error', err);
     }
     self.emit('logged');

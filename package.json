@@ -28,12 +28,12 @@
   "license": "MIT",
   "tonicExampleFilename": "example/server.js",
   "devDependencies": {
+    "chai": "^4.3.1",
     "eslint": "^6.0.1",
     "mocha": "^7.0.0",
     "winston": "^3.1.0"
   },
   "dependencies": {
-    "chai": "^4.2.0",
     "is-stream": "^1.1.0",
     "splunk-logging": "^0.10.1",
     "util": "^0.10.3"
