@@ -2,8 +2,9 @@
 
 A [Winston] transport for logging to [Splunk] with a [HTTP Event Collector].
 
-  [![Depedency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger)
-  [![devDependency Status](https://david-dm.org/adrianhall/winston-splunk-httplogger/dev-status.svg)](https://david-dm.org/adrianhall/winston-splunk-httplogger?type=dev)
+> **NOTE**
+>
+> This project is no longer under active development.  I can reasonably accept PRs, providing they include unit tests for the functionality and pass all existing tests.  However, I do not have the ability to test against a live Splunk service.
 
 ## Compatibility
 
