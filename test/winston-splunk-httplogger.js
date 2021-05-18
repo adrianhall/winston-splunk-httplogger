@@ -25,6 +25,21 @@ describe('createLogger', function () {
         assert.ok(s instanceof SplunkStreamEvent);
     });
 
+    it('should provide exitOnError as true by default', function() {
+      var s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
+      assert.isTrue(s.exitOnError);
+    });
+
+    it('should provide exitOnError as true by default when exitOnError value is not boolean', function() {
+      var s = new SplunkStreamEvent({ splunk: { token: 'foo' }, exitOnError: 'false'});
+      assert.isTrue(s.exitOnError);
+    });
+
+    it('should set exitOnError correctly', function() {
+      var s = new SplunkStreamEvent({ splunk: { token: 'foo' }, exitOnError: false});
+      assert.isFalse(s.exitOnError);
+    });
+
     it('should provide a default level of info', function() {
         var s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
         assert.strictEqual('info', s.level);
@@ -72,7 +87,11 @@ describe('createLogger', function () {
 });
 
 describe('log()', function() {
-    var s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
+    var s;
+
+    beforeEach(function() {
+      s = new SplunkStreamEvent({ splunk: { token: 'foo' }});
+    });
 
     describe('splunk payload generation from the `info` object', function() {
         var info = {
@@ -153,7 +172,7 @@ describe('log()', function() {
         assert.ok(called, 'event emitted');
     });
 
-    it('triggers an `error` event if the payload transmission fails', function() {
+    it('triggers an `error` event if the payload transmission fails and emitOnError is true', function() {
         var called = false;
         s.on('error', function() {
             called = true;
@@ -165,5 +184,20 @@ describe('log()', function() {
         };
         s.log({}, function() {});
         assert.ok(called, 'event emitted');
+    });
+
+    it('does not trigger an `error` event if the payload transmission fails and emitOnError is false', function() {
+      s = new SplunkStreamEvent({ splunk: { token: 'foo' }, exitOnError: false});
+      var called = false;
+      s.on('error', function() {
+        called = true;
+      });
+      s.server = {
+        send: function(payload, callback) {
+          callback(new Error());
+        }
+      };
+      s.log({}, function() {});
+      assert.ok(!called, 'event not emitted');
     });
 });

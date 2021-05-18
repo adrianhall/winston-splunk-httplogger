@@ -54,6 +54,7 @@ if (!isStream(new winston.Transport())) {
  * events exceeds this many bytes. This setting is ignored when non-positive.
  * @param {number} [config.maxBatchCount=1] - Automatically flush events after this many
  * events have been queued. Defaults to flush immediately on sending an event. This setting is ignored when non-positive.
+ * @param {boolean} [config.exitOnError=true] - whether an unexpected request error causes the javascript process to exit.
  *
  * @constructor
  */
@@ -65,6 +66,7 @@ var SplunkStreamEvent = function (config) {
 
   /** @property {string} level - the minimum level to log */
   this.level = config.level || 'info';
+  this.exitOnError = typeof config.exitOnError != 'boolean' || config.exitOnError;
 
   // Verify that we actually have a splunk object and a token
   if (!config.splunk || !config.splunk.token) {
@@ -145,7 +147,7 @@ SplunkStreamEvent.prototype.log = function (info, callback) {
   }
 
   this.server.send(payload, function (err) {
-    if (err) {
+    if (err && self.exitOnError) {
       self.emit('error', err);
     }
     self.emit('logged');
