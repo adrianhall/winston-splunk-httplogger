@@ -3,13 +3,18 @@ module.exports = {
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
-    ["@semantic-release/npm", {
-      "tarballDir": "release"
-    }],
-    ["@semantic-release/github", {
-      "assets": "release/*.tgz"
-    }],
-    "@semantic-release/git"
+    "@semantic-release/npm",
+    "@semantic-release/github",
+    ["@semantic-release/git", {
+      "assets": [
+        "index.js",
+        "package.json",
+        "package-lock.json",
+        "README.md",
+        "LICENSE"
+      ],
+      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }]
   ],
   "branches": [ "main" ]
 };
