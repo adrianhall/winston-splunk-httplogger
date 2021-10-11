@@ -1,12 +1,13 @@
 {
   "name": "winston-splunk-httplogger",
-  "version": "2.4.3",
+  "version": "0.0.0-development",
   "description": "A Winston compatible transport for logging to a Splunk HTTP Event Collector",
   "homepage": "https://github.com/adrianhall/winston-splunk-httplogger",
   "main": "index.js",
   "scripts": {
     "pretest": "eslint index.js",
-    "test": "mocha"
+    "test": "mocha",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
