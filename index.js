@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 Adrian Hall
+ * Copyright (C) 2015-2021 Adrian Hall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,10 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-var util = require('util');
-var winston = require('winston');
-var isStream = require('is-stream');
-var SplunkLogger = require('splunk-logging').Logger;
+const winston = require('winston');
+const isStream = require('is-stream');
+const SplunkLogger = require('splunk-logging').Logger;
 
 if (!isStream(new winston.Transport())) {
   console.error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
@@ -58,102 +57,102 @@ if (!isStream(new winston.Transport())) {
  *
  * @constructor
  */
-var SplunkStreamEvent = function (config) {
-  winston.Transport.call(this, config);
+class SplunkStreamEvent extends winston.Transport {
+  constructor (config) {
+    super(config);
 
-  /** @property {string} name - the name of the transport */
-  this.name = 'SplunkStreamEvent';
+    /** @property {string} name - the name of the transport */
+    this.name = 'SplunkStreamEvent';
 
-  /** @property {string} level - the minimum level to log */
-  this.level = config.level || 'info';
-  this.exitOnError = typeof config.exitOnError != 'boolean' || config.exitOnError;
+    /** @property {string} level - the minimum level to log */
+    this.level = config.level || 'info';
+    this.exitOnError = typeof config.exitOnError !== 'boolean' || config.exitOnError;
 
-  // Verify that we actually have a splunk object and a token
-  if (!config.splunk || !config.splunk.token) {
-    throw new Error('Invalid Configuration: options.splunk is invalid');
-  }
+    // Verify that we actually have a splunk object and a token
+    if (!config.splunk || !config.splunk.token) {
+      throw new Error('Invalid Configuration: options.splunk is invalid');
+    }
 
-  // If source/sourcetype are mentioned in the splunk object, then store the
-  // defaults in this and delete from the splunk object
-  this.defaultMetadata = {
-    source: 'winston',
-    sourcetype: 'winston-splunk-logger',
-    index: 'winston-index'
-  };
-  if (config.splunk.source) {
-    this.defaultMetadata.source = config.splunk.source;
-    delete config.splunk.source;
-  }
-  if (config.splunk.sourcetype) {
-    this.defaultMetadata.sourcetype = config.splunk.sourcetype;
-    delete config.splunk.sourcetype;
-  }
-  if (config.splunk.index) {
-    this.defaultMetadata.index = config.splunk.index;
-    delete config.splunk.index;
-  }
+    // If source/sourcetype are mentioned in the splunk object, then store the
+    // defaults in this and delete from the splunk object
+    this.defaultMetadata = {
+      source: 'winston',
+      sourcetype: 'winston-splunk-logger',
+      index: 'winston-index'
+    };
+    if (config.splunk.source) {
+      this.defaultMetadata.source = config.splunk.source;
+      delete config.splunk.source;
+    }
+    if (config.splunk.sourcetype) {
+      this.defaultMetadata.sourcetype = config.splunk.sourcetype;
+      delete config.splunk.sourcetype;
+    }
+    if (config.splunk.index) {
+      this.defaultMetadata.index = config.splunk.index;
+      delete config.splunk.index;
+    }
 
-  // This gets around a problem with setting maxBatchCount
-  config.splunk.maxBatchCount = 1;
-  this.server = new SplunkLogger(config.splunk);
+    // This gets around a problem with setting maxBatchCount
+    config.splunk.maxBatchCount = 1;
+    this.server = new SplunkLogger(config.splunk);
 
-  // Override the default event formatter
-  if (config.splunk.eventFormatter) {
-    this.server.eventFormatter = config.splunk.eventFormatter;
-  }
-};
-
-util.inherits(SplunkStreamEvent, winston.Transport);
-
-/**
- * Returns the configuration for this logger
- * @returns {Object} Configuration for this logger.
- * @public
- */
-SplunkStreamEvent.prototype.config = function () {
-  return this.server.config;
-};
-
-/**
- * Core logging method exposed to Winston.
- *
- * @function log
- * @member SplunkStreamEvent
- * @param {object} [info] - the log message info object
- * @param {function} callback - Continuation to respond to when complete
- */
-SplunkStreamEvent.prototype.log = function (info, callback) {
-  var self = this;
-  var level = info[Symbol.for('level')];
-  var msg = info['message'];
-  var meta = Object.assign({}, info);
-
-  delete meta[Symbol.for('level')];
-  delete meta[Symbol.for('message')];
-  var splunkInfo = info.splunk || {};
-
-  var payload = {
-    message: {
-      msg: msg
-    },
-    metadata: Object.assign({}, this.defaultMetadata, splunkInfo),
-    severity: level
-  };
-
-  if (meta) {
-    if (Object.keys(meta).length) {
-      payload.message.meta = meta;
+    // Override the default event formatter
+    if (config.splunk.eventFormatter) {
+      this.server.eventFormatter = config.splunk.eventFormatter;
     }
   }
 
-  this.server.send(payload, function (err) {
-    if (err && self.exitOnError) {
-      self.emit('error', err);
+  /**
+   * Returns the configuration for this logger
+   * @returns {Object} Configuration for this logger.
+   * @public
+   */
+  config () {
+    return this.server.config;
+  }
+
+  /**
+   * Core logging method exposed to Winston.
+   *
+   * @function log
+   * @member SplunkStreamEvent
+   * @param {object} [info] - the log message info object
+   * @param {function} callback - Continuation to respond to when complete
+   */
+  log (info, callback) {
+    const self = this;
+    const level = info[Symbol.for('level')];
+    const msg = info.message;
+    const meta = Object.assign({}, info);
+    delete meta[Symbol.for('level')];
+    delete meta[Symbol.for('message')];
+
+    const splunkInfo = info.splunk || {};
+
+    const payload = {
+      message: {
+        msg: msg
+      },
+      metadata: Object.assign({}, this.defaultMetadata, splunkInfo),
+      severity: level
+    };
+
+    if (meta) {
+      if (Object.keys(meta).length) {
+        payload.message.meta = meta;
+      }
     }
-    self.emit('logged');
-    callback(null, true);
-  });
-};
+
+    this.server.send(payload, function (err) {
+      if (err && self.exitOnError) {
+        self.emit('error', err);
+      }
+      self.emit('logged');
+      callback(null, true);
+    });
+  };
+}
 
 // Insert this object into the Winston transports list
 winston.transports.SplunkStreamEvent = SplunkStreamEvent;

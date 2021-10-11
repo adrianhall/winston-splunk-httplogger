@@ -1,15 +1,16 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "globalReturn": false,
-      "impliedStrict": true
+    "env": {
+        "commonjs": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "standard"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 10
+    },
+    "rules": {
+      "semi": [ "error", "always" ]
     }
-  },
-  "env": {
-    "es6": true,
-    "node": true
-  },
-  "extends": "eslint:recommended"
 }
