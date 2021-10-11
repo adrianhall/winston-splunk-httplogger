@@ -1,6 +1,5 @@
 on:
-  push:
-    branches: [ main ]
+  pull_request:
 
 jobs:
   run-npm-build-test:
@@ -22,21 +21,3 @@ jobs:
           npm test
         env:
           CI: true
-
-  release-to-npm:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Use node.js 14.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-      - name: Release to npm
-        run: |
-          npm install
-          npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
