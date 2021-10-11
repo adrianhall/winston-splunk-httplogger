@@ -28,9 +28,16 @@
   "license": "MIT",
   "tonicExampleFilename": "example/server.js",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/commit-analyzer": "^9.0.1",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^8.0.1",
+    "@semantic-release/npm": "^8.0.0",
+    "@semantic-release/release-notes-generator": "^10.0.2",
     "chai": "^4.3.1",
     "eslint": "^6.0.1",
     "mocha": "^7.0.0",
+    "semantic-release": "^18.0.0",
     "winston": "^3.1.0"
   },
   "dependencies": {
@@ -43,5 +50,13 @@
   },
   "engine": {
     "node": ">= 8.10.0"
-  }
+  },
+  "files": [
+    "index.js",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "package-lock.json"
+  ]
 }

@@ -1,0 +1,25 @@
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 8.x, 10.x, 12.x, 14.x, 16.x ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Use node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Restore package dependencies
+        run: npm ci
+      - name: Release to npm
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
