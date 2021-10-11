@@ -13,7 +13,7 @@
     "url": "https://github.com/adrianhall/winston-splunk-httplogger.git"
   },
   "engines": {
-    "node": ">=8.0"
+    "node": ">=10.0"
   },
   "keywords": [
     "splunk",
@@ -23,7 +23,7 @@
   ],
   "author": {
     "name": "Adrian Hall",
-    "email": "adrian@shellmonger.com"
+    "email": "photoadrian@outlook.com"
   },
   "license": "MIT",
   "tonicExampleFilename": "example/server.js",
