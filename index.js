@@ -20,10 +20,11 @@
  * THE SOFTWARE.
  */
 const winston = require('winston');
-const isStream = require('is-stream');
 const SplunkLogger = require('splunk-logging').Logger;
 
-if (!isStream(new winston.Transport())) {
+// Basic "is-stream" test to ensure we have a proper winston install
+const testStream = new winston.Transport();
+if (testStream === null || typeof testStream !== 'object' || typeof testStream.pipe !== 'function') {
   console.error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
   throw new Error('winston-splunk-httplogger >= 2.0.0 is not compatiable with winston < 3.0.0.');
 }
