@@ -77,22 +77,11 @@ class SplunkStreamEvent extends winston.Transport {
     // If source/sourcetype are mentioned in the splunk object, then store the
     // defaults in this and delete from the splunk object
     this.defaultMetadata = {
-      source: 'winston',
-      sourcetype: 'winston-splunk-logger',
-      index: 'winston-index'
+      source: config.splunk.source || 'winston',
+      sourcetype: config.splunk.sourcetype || 'winston-splunk-logger',
+      index: config.splunk.index || 'main',
+      host: config.splunk.host || 'localhost',
     };
-    if (config.splunk.source) {
-      this.defaultMetadata.source = config.splunk.source;
-      delete config.splunk.source;
-    }
-    if (config.splunk.sourcetype) {
-      this.defaultMetadata.sourcetype = config.splunk.sourcetype;
-      delete config.splunk.sourcetype;
-    }
-    if (config.splunk.index) {
-      this.defaultMetadata.index = config.splunk.index;
-      delete config.splunk.index;
-    }
 
     // This gets around a problem with setting maxBatchCount
     config.splunk.maxBatchCount = 1;
